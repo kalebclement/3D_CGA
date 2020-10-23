@@ -39,7 +39,7 @@ namespace WindowsFormsApp1
         private double shy;
         private double FP;
         private double BP;
-        private double k;
+        private double BP4;
         private double sx;
         private double sy;
         private double sz;
@@ -94,6 +94,7 @@ namespace WindowsFormsApp1
             this.Rplus = false;
             this.Rmin = false;
             System.Windows.Forms.Timer Timer1 = new System.Windows.Forms.Timer();
+            this.Timer1.Tick += new EventHandler(Timer1_Tick);
             this.Timer1.Enabled = false;
             this.Process();
         }
@@ -391,19 +392,19 @@ namespace WindowsFormsApp1
 
             this.shx = -this.DOP.x / this.DOP.z; // harusnya -DOPx based dari ppt 
             this.shy = -this.DOP.y / this.DOP.z; // -//- -DOPy based dari ppy
-            this.k = this.BP - this.COP.z; // ini sama kayak B4/B3 (Back plane yang udah melakukan 4 transformasi
-            this.sx = 2.0 * -this.COP.z / ((this.wxmax - this.wxmin) * this.k);
-            this.sy = 2.0 * -this.COP.z / ((this.wymax - this.wymin) * this.k);
+            this.BP4 = this.BP - this.COP.z; // ini sama kayak B4/B3 (Back plane yang udah melakukan 4 transformasi
+            this.sx = 2.0 * -this.COP.z / ((this.wxmax - this.wxmin) * this.BP4);
+            this.sy = 2.0 * -this.COP.z / ((this.wymax - this.wymin) * this.BP4);
             this.sz = -1.0 / (this.BP - this.COP.z);
-            this.zmin = -((-this.COP.z + this.FP) / this.k);
+            this.zmin = -((-this.COP.z + this.FP) / this.BP4);
 
-            this.shx = (- this.DOP.x / this.DOP.z);
+            this.shx = -(this.DOP.x / this.DOP.z);
             this.shy = -(this.DOP.y / this.DOP.z);
-            this.k = -this.COP.z + this.BP; 
-            this.sx = 2.0 * -this.COP.z / ((this.wxmax - this.wxmin) * this.k);
-            this.sy = 2.0 * -this.COP.z / ((this.wymax - this.wymin) * this.k);
+            this.BP4 = -this.COP.z + this.BP; 
+            this.sx = 2.0 * -this.COP.z / ((this.wxmax - this.wxmin) * this.BP4);
+            this.sy = 2.0 * -this.COP.z / ((this.wymax - this.wymin) * this.BP4);
             this.sz = -1.0 / (-this.COP.z + this.BP);
-            this.zmin = -((-this.COP.z ) / this.k);
+            this.zmin = -((-this.COP.z + this.FP)  / this.BP4);
 
             this.zmax = -1.0;
             this.SetRowMatrix(ref this.T1n2, 0, this.u.x, this.v.x, this.n.x, 0.0);
@@ -615,7 +616,6 @@ namespace WindowsFormsApp1
         {
             this.Forw = true;
             this.Timer1.Enabled = true;
-            Timer1.Tick += new EventHandler(Timer1_Tick);
             Timer1.Start();
             
         }
@@ -625,7 +625,6 @@ namespace WindowsFormsApp1
             this.Forw = false;
             this.Timer1.Enabled = false;
             Timer1.Stop();
-            Timer1.Interval = 100;
         }
 
       
@@ -650,7 +649,6 @@ namespace WindowsFormsApp1
         {
             this.Righ = true;
             this.Timer1.Enabled = true;
-            Timer1.Tick += new EventHandler(Timer1_Tick);
             Timer1.Start();
         }
 
@@ -686,7 +684,6 @@ namespace WindowsFormsApp1
         {
             this.Rmin = true;
             this.Timer1.Enabled = true;
-            Timer1.Tick += new EventHandler(Timer1_Tick);
             Timer1.Start();
         }
 
@@ -694,17 +691,14 @@ namespace WindowsFormsApp1
         {
             this.Rplus = true;
             this.Timer1.Enabled = true;
-            Timer1.Tick += new EventHandler(Timer1_Tick);
             Timer1.Start();
         }
 
         private void rotateYplus_MouseUp(object sender, MouseEventArgs e)
         {
-            
             this.Rplus = false;
             this.Timer1.Enabled = false;
             Timer1.Stop();
-
         }
 
 
@@ -772,5 +766,16 @@ namespace WindowsFormsApp1
             public bool Back;
         }
 
+        private void ForwardBtn_Click(object sender, EventArgs e)
+        {
+            this.MoveCamera(0.3, 0.0);
+        }
+
+        private void BackwardBtn_Click(object sender, EventArgs e)
+        {
+            this.MoveCamera(-0.3, 0.0);
+        }
+
+        
     }
 }

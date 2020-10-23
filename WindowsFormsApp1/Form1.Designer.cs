@@ -42,6 +42,7 @@
             this.backwaerd = new System.Windows.Forms.Button();
             this.Timer1 = new System.Windows.Forms.Timer(this.components);
             this.boxCanvas = new System.Windows.Forms.PictureBox();
+            this.Timer2 = new System.Windows.Forms.Timer(this.components);
             ((System.ComponentModel.ISupportInitialize)(this.boxCanvas)).BeginInit();
             this.SuspendLayout();
             // 
@@ -147,10 +148,6 @@
             this.backwaerd.MouseDown += new System.Windows.Forms.MouseEventHandler(this.backward_MouseDown);
             this.backwaerd.MouseUp += new System.Windows.Forms.MouseEventHandler(this.backward_MouseUp);
             // 
-            // Timer1
-            // 
-            this.Timer1.Interval = 50;
-            // 
             // boxCanvas
             // 
             this.boxCanvas.Image = ((System.Drawing.Image)(resources.GetObject("boxCanvas.Image")));
@@ -198,6 +195,7 @@
         private System.Windows.Forms.Button backwaerd;
         private System.Windows.Forms.Timer Timer1;
         private System.Windows.Forms.PictureBox boxCanvas;
+        private System.Windows.Forms.Timer Timer2;
     }
 }
 
