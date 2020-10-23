@@ -17,3 +17,13 @@ C:\Users\kaleb\OneDrive\Documents\RoomViewer_PA\WindowsFormsApp1\obj\Debug\Windo
 C:\Users\kaleb\OneDrive\Documents\RoomViewer_PA\WindowsFormsApp1\bin\Debug\WindowsFormsApp1.exe.config
 C:\Users\kaleb\OneDrive\Documents\RoomViewer_PA\WindowsFormsApp1\bin\Debug\WindowsFormsApp1.exe
 C:\Users\kaleb\OneDrive\Documents\RoomViewer_PA\WindowsFormsApp1\bin\Debug\WindowsFormsApp1.pdb
+C:\Users\hfzh2\Source\Repos\kalebclement\3D_CGA\WindowsFormsApp1\bin\Debug\WindowsFormsApp1.exe.config
+C:\Users\hfzh2\Source\Repos\kalebclement\3D_CGA\WindowsFormsApp1\bin\Debug\WindowsFormsApp1.exe
+C:\Users\hfzh2\Source\Repos\kalebclement\3D_CGA\WindowsFormsApp1\bin\Debug\WindowsFormsApp1.pdb
+C:\Users\hfzh2\Source\Repos\kalebclement\3D_CGA\WindowsFormsApp1\obj\Debug\RoomViewer_PA.csprojAssemblyReference.cache
+C:\Users\hfzh2\Source\Repos\kalebclement\3D_CGA\WindowsFormsApp1\obj\Debug\WindowsFormsApp1.Form1.resources
+C:\Users\hfzh2\Source\Repos\kalebclement\3D_CGA\WindowsFormsApp1\obj\Debug\WindowsFormsApp1.Properties.Resources.resources
+C:\Users\hfzh2\Source\Repos\kalebclement\3D_CGA\WindowsFormsApp1\obj\Debug\RoomViewer_PA.csproj.GenerateResource.cache
+C:\Users\hfzh2\Source\Repos\kalebclement\3D_CGA\WindowsFormsApp1\obj\Debug\RoomViewer_PA.csproj.CoreCompileInputs.cache
+C:\Users\hfzh2\Source\Repos\kalebclement\3D_CGA\WindowsFormsApp1\obj\Debug\WindowsFormsApp1.exe
+C:\Users\hfzh2\Source\Repos\kalebclement\3D_CGA\WindowsFormsApp1\obj\Debug\WindowsFormsApp1.pdb

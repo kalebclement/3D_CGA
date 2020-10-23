@@ -379,6 +379,7 @@ namespace WindowsFormsApp1
             this.n = this.UnitVector(this.VPN);
             this.v = this.UnitVector(this.AddVectors(this.VUP, this.MultiplyVector(-1.0 * this.DotProduct(this.n, this.VUP), this.n)));
             this.u = this.UnitVector(this.CrossProduct(this.v, this.n));
+            // ini declare matrix M dari PPT 5 slide 9
             double[,] M = new double[4, 4];
             this.SetRowMatrix(ref M, 0, this.u.x, this.v.x, this.n.x, 0.0);
             this.SetRowMatrix(ref M, 1, this.u.y, this.v.y, this.n.y, 0.0);
@@ -387,22 +388,22 @@ namespace WindowsFormsApp1
             this.VRPV = this.Transform(this.VRP, M);
             this.SetPoint(ref this.WC, (this.wxmin + this.wxmax) / 2.0, (this.wymin + this.wymax) / 2.0, 0.0);
             this.SetVector(ref this.DOP, this.WC.x - this.COP.x, this.WC.y - this.COP.y, this.WC.z - this.COP.z);
-            this.shx = (- this.DOP.x / this.DOP.z);
-            this.shy = -(this.DOP.y / this.DOP.z);
-            this.k = -this.COP.z + this.BP;
+            this.shx = -this.DOP.x / this.DOP.z; // harusnya -DOPx based dari ppt 
+            this.shy = -this.DOP.y / this.DOP.z; // -//- -DOPy based dari ppy
+            this.k = this.BP - this.COP.z; // ini sama kayak B4/B3 (Back plane yang udah melakukan 4 transformasi
             this.sx = 2.0 * -this.COP.z / ((this.wxmax - this.wxmin) * this.k);
             this.sy = 2.0 * -this.COP.z / ((this.wymax - this.wymin) * this.k);
-            this.sz = -1.0 / (-this.COP.z + this.BP);
+            this.sz = -1.0 / (this.BP - this.COP.z);
             this.zmin = -((-this.COP.z + this.FP) / this.k);
             this.zmax = -1.0;
             this.SetRowMatrix(ref this.T1n2, 0, this.u.x, this.v.x, this.n.x, 0.0);
             this.SetRowMatrix(ref this.T1n2, 1, this.u.y, this.v.y, this.n.y, 0.0);
             this.SetRowMatrix(ref this.T1n2, 2, this.u.z, this.v.z, this.n.z, 0.0);
-            this.SetRowMatrix(ref this.T1n2, 3, -this.VRPV.x, -this.VRPV.y, -this.VRPV.z, 1.0);
+            this.SetRowMatrix(ref this.T1n2, 3, -this.VRPV.x, -this.VRPV.y, -this.VRPV.z, 1.0); // ini di PPT 5 slide 12, 
             this.SetRowMatrix(ref this.T3, 0, 1.0, 0.0, 0.0, 0.0);
             this.SetRowMatrix(ref this.T3, 1, 0.0, 1.0, 0.0, 0.0);
             this.SetRowMatrix(ref this.T3, 2, 0.0, 0.0, 1.0, 0.0);
-            this.SetRowMatrix(ref this.T3, 3, -this.COP.x, -this.COP.y, -this.COP.z, 1.0);
+            this.SetRowMatrix(ref this.T3, 3, -this.COP.x, -this.COP.y, -this.COP.z, 1.0); // -COPx sama kayak -eu di ppt 5 slide 27. bedanya COPx itu coordinate COP yang ada di WCS
             this.SetRowMatrix(ref this.T4, 0, 1.0, 0.0, 0.0, 0.0);
             this.SetRowMatrix(ref this.T4, 1, 0.0, 1.0, 0.0, 0.0);
             this.SetRowMatrix(ref this.T4, 2, this.shx, this.shy, 1.0, 0.0);
