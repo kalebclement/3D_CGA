@@ -389,11 +389,11 @@ namespace WindowsFormsApp1
             this.SetVector(ref this.DOP, this.WC.x - this.COP.x, this.WC.y - this.COP.y, this.WC.z - this.COP.z);
             this.shx = (- this.DOP.x / this.DOP.z);
             this.shy = -(this.DOP.y / this.DOP.z);
-            this.k = -this.COP.z + this.BP;
+            this.k = -this.COP.z + this.BP; 
             this.sx = 2.0 * -this.COP.z / ((this.wxmax - this.wxmin) * this.k);
             this.sy = 2.0 * -this.COP.z / ((this.wymax - this.wymin) * this.k);
             this.sz = -1.0 / (-this.COP.z + this.BP);
-            this.zmin = -((-this.COP.z + this.FP) / this.k);
+            this.zmin = -((-this.COP.z ) / this.k);
             this.zmax = -1.0;
             this.SetRowMatrix(ref this.T1n2, 0, this.u.x, this.v.x, this.n.x, 0.0);
             this.SetRowMatrix(ref this.T1n2, 1, this.u.y, this.v.y, this.n.y, 0.0);
@@ -573,8 +573,8 @@ namespace WindowsFormsApp1
 
         public void MoveCamera(double r, double a)
         {
-            this.VRP.x += r * Math.Cos(this.alpha + a);
-            this.VRP.z -= r * Math.Sin(this.alpha + a);
+            this.VRP.x += r * Math.Cos(this.alpha + a); // Move camera along x (right left)
+            this.VRP.z -= r * Math.Sin(this.alpha + a); // Move camera along z (forw backw)
             this.Process();
         }
 
@@ -606,6 +606,7 @@ namespace WindowsFormsApp1
             this.Timer1.Enabled = true;
             Timer1.Tick += new EventHandler(Timer1_Tick);
             Timer1.Start();
+            
         }
 
         private void forward_MouseUp(object sender, MouseEventArgs e)
@@ -613,6 +614,7 @@ namespace WindowsFormsApp1
             this.Forw = false;
             this.Timer1.Enabled = false;
             Timer1.Stop();
+            Timer1.Interval = 100;
         }
 
       
@@ -621,6 +623,7 @@ namespace WindowsFormsApp1
             this.Back = false;
             this.Timer1.Enabled = false;
             Timer1.Stop();
+            Timer1.Interval = 100;
         }
 
         private void backward_MouseDown(object sender, MouseEventArgs e)
@@ -686,6 +689,7 @@ namespace WindowsFormsApp1
 
         private void rotateYplus_MouseUp(object sender, MouseEventArgs e)
         {
+            
             this.Rplus = false;
             this.Timer1.Enabled = false;
             Timer1.Stop();
@@ -704,7 +708,7 @@ namespace WindowsFormsApp1
 
         private void Timer1_Tick(object sender, EventArgs e)
         {
-            Timer1.Interval = 100;
+            
             if (this.Forw)
                 this.MoveCamera(0.1, 0.0);
             if (this.Back)
