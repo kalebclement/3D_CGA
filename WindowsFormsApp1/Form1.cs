@@ -12,7 +12,7 @@ namespace WindowsFormsApp1
 {
     public partial class Form1 : Form
     {
-        
+       
         private Bitmap window;
         private Graphics graph;
         private TCube[] c;
@@ -26,20 +26,27 @@ namespace WindowsFormsApp1
         private TVector v;
         private TVector n;
         private TVector DOP;
-        private double[,] T1n2;
+        private double[,] T1T2;
         private double[,] T3;
         private double[,] T4;
         private double[,] T5;
         private double[,] T6;
+        private double[,] T7;
+        private double[,] T8;
+        private double[,] T9;
         private double wxmin;
         private double wxmax;
         private double wymin;
         private double wymax;
+        private double v3;
+        private double v5;
         private double shx;
         private double shy;
         private double FP;
         private double BP;
         private double BP4;
+        private double vmax7;
+        private double num8;
         private double sx;
         private double sy;
         private double sz;
@@ -51,7 +58,7 @@ namespace WindowsFormsApp1
         private bool Back;
         private bool Righ;
         private bool Lef;
-        private bool Rplus;
+        private bool rotatePlus;
         private bool Rmin;
         
 
@@ -63,22 +70,42 @@ namespace WindowsFormsApp1
             this.window = new Bitmap(400, 400);
             this.graph = Graphics.FromImage((Image)this.window);
             this.c = new Form1.TCube[9];
-            this.T1n2 = new double[4, 4];
+            this.T1T2 = new double[4, 4];
             this.T3 = new double[4, 4];
             this.T4 = new double[4, 4];
             this.T5 = new double[4, 4];
             this.T6 = new double[4, 4];
+            this.T7 = new double[4, 4];
+            this.T8 = new double[4, 4];
+            this.T9 = new double[4, 4];
         }
 
        
 
         private void Form1_Load(object sender, EventArgs e)
         {
+            this.Initfirst();
+            this.DoRedraw();
+        }
+
+        public void Initfirst()
+        {
+            boxCanvas.SizeMode = PictureBoxSizeMode.Normal;
             this.SetPoint(ref this.COP, 0.0, 0.0, 4.0);
             this.SetPoint(ref this.VRP, 0.0, 0.0, 4.0);
             this.SetPoint(ref this.VRPV, 0.0, 0.0, 0.0);
             this.SetVector(ref this.VPN, 0.0, 0.0, 1.0);
             this.SetVector(ref this.VUP, 0.0, 1.0, 0.0);
+            
+            this.alpha = Math.PI / 2.0;
+            this.Forw = false;
+            this.Back = false;
+            this.Righ = false;
+            this.Lef = false;
+            this.rotatePlus = false;
+            this.Rmin = false;
+
+
             this.wxmin = -2.0;
             this.wxmax = 2.0;
             this.wymin = -2.0;
@@ -86,17 +113,10 @@ namespace WindowsFormsApp1
             this.FP = 2.0;
             this.BP = -10.0;
             this.near = 0.0;
-            this.alpha = Math.PI / 2.0;
-            this.Forw = false;
-            this.Back = false;
-            this.Righ = false;
-            this.Lef = false;
-            this.Rplus = false;
-            this.Rmin = false;
+
             System.Windows.Forms.Timer Timer1 = new System.Windows.Forms.Timer();
             this.Timer1.Tick += new EventHandler(Timer1_Tick);
             this.Timer1.Enabled = false;
-            this.Process();
         }
 
        public void ClearWindow() => graph.FillRectangle(Brushes.Black, 0, 0, this.boxCanvas.Width,this.boxCanvas.Height); // window (umin, vmin, umax, vmax)
@@ -275,7 +295,7 @@ namespace WindowsFormsApp1
             int index = 0;
             do
             {
-                cu.P[index] = this.Transform(cu.P[index], M);
+                cu.P[index] = this.Generate3Dto2D(cu.P[index], M);
                 checked { ++index; }
             }
             while (index <= 7);
@@ -292,22 +312,22 @@ namespace WindowsFormsApp1
             while (index <= 8);
         }
 
-        public void DrawCube(Form1.TCube cu, Pen p)
+        public void DrawCube(Form1.TCube coords, Pen Col)
         {
             int index = 0;
             do
             {
-                Form1.TPoint v1_1 = new TPoint();
-                this.SetPoint(ref v1_1, cu.P[cu.L[index].p1].x, cu.P[cu.L[index].p1].y, cu.P[cu.L[index].p1].z);
-                v1_1.w = cu.P[cu.L[index].p1].w;
+                Form1.TPoint V1_One = new TPoint();
+                this.SetPoint(ref V1_One, coords.P[coords.L[index].p1].x, coords.P[coords.L[index].p1].y, coords.P[coords.L[index].p1].z);
+                V1_One.w = coords.P[coords.L[index].p1].w;
                 Form1.TPoint v1_2 = new TPoint();
-                this.SetPoint(ref v1_2, cu.P[cu.L[index].p2].x, cu.P[cu.L[index].p2].y, cu.P[cu.L[index].p2].z);
-                v1_2.w = cu.P[cu.L[index].p2].w;
-                if (v1_1.w > this.near | v1_2.w > this.near)
+                this.SetPoint(ref v1_2, coords.P[coords.L[index].p2].x, coords.P[coords.L[index].p2].y, coords.P[coords.L[index].p2].z);
+                v1_2.w = coords.P[coords.L[index].p2].w;
+                if (V1_One.w > this.near | v1_2.w > this.near)
                 {
                     if (v1_2.w <= this.near)
                     {
-                        this.ClipLine(v1_1, ref v1_2);
+                        this.ClipLine(V1_One, ref v1_2);
                     }
                     else
                     {
@@ -316,19 +336,19 @@ namespace WindowsFormsApp1
                         v1_2.z /= v1_2.w;
                         v1_2.w = 1.0;
                     }
-                    if (v1_1.w <= this.near)
+                    if (V1_One.w <= this.near)
                     {
-                        this.ClipLine(v1_2, ref v1_1);
+                        this.ClipLine(v1_2, ref V1_One);
                     }
                     else
                     {
-                        v1_1.x /= v1_1.w;
-                        v1_1.y /= v1_1.w;
-                        v1_1.z /= v1_1.w;
-                        v1_1.w = 1.0;
+                        V1_One.x /= V1_One.w;
+                        V1_One.y /= V1_One.w;
+                        V1_One.z /= V1_One.w;
+                        V1_One.w = 1.0;
                     }
-                    if (this.CSClip(ref v1_1, ref v1_2))
-                        this.graph.DrawLine(p, checked((int)Math.Round(unchecked(v1_1.x * 100.0 + 150.0))), checked((int)Math.Round(unchecked(v1_1.y * -100.0 + 150.0))), checked((int)Math.Round(unchecked(v1_2.x * 100.0 + 150.0))), checked((int)Math.Round(unchecked(v1_2.y * -100.0 + 150.0))));
+                    if (this.DoClip(ref V1_One, ref v1_2))
+                        this.graph.DrawLine(Col, checked((int)Math.Round(unchecked(V1_One.x * 100.0 + 150.0))), checked((int)Math.Round(unchecked(V1_One.y * -100.0 + 150.0))), checked((int)Math.Round(unchecked(v1_2.x * 100.0 + 150.0))), checked((int)Math.Round(unchecked(v1_2.y * -100.0 + 150.0))));
                 }
                 checked { ++index; }
             }
@@ -356,7 +376,8 @@ namespace WindowsFormsApp1
             M[row, 3] = d;
         }
 
-        public Form1.TPoint Transform(Form1.TPoint P, double[,] M)
+
+        public Form1.TPoint Generate3Dto2D(Form1.TPoint P, double[,] M)
         {
             Form1.TPoint tpoint;
             tpoint.x = P.x * M[0, 0] + P.y * M[1, 0] + P.z * M[2, 0] + P.w * M[3, 0];
@@ -368,13 +389,13 @@ namespace WindowsFormsApp1
 
         public void DrawWindow()
         {
-            this.graph.DrawLine(Pens.Black, 50, 250, 250, 250);
-            this.graph.DrawLine(Pens.Black, 50, 50, 250, 50);
-            this.graph.DrawLine(Pens.Black, 250, 50, 250, 250);
-            this.graph.DrawLine(Pens.Black, 50, 50, 50, 250);
+            this.graph.DrawLine(Pens.White, 50, 250, 250, 250);
+            this.graph.DrawLine(Pens.White, 50, 50, 250, 50);
+            this.graph.DrawLine(Pens.White, 250, 50, 250, 250);
+            this.graph.DrawLine(Pens.White, 50, 50, 50, 250);
         }
 
-        public void Process()
+        public void DoRedraw()
         {
             this.ClearWindow();
             this.n = this.UnitVector(this.VPN);
@@ -386,25 +407,28 @@ namespace WindowsFormsApp1
             this.SetRowMatrix(ref M, 1, this.u.y, this.v.y, this.n.y, 0.0);
             this.SetRowMatrix(ref M, 2, this.u.z, this.v.z, this.n.z, 0.0);
             this.SetRowMatrix(ref M, 3, 0.0, 0.0, 0.0, 1.0);
-            this.VRPV = this.Transform(this.VRP, M);
+            this.VRPV = this.Generate3Dto2D(this.VRP, M);
             this.SetPoint(ref this.WC, (this.wxmin + this.wxmax) / 2.0, (this.wymin + this.wymax) / 2.0, 0.0);
             this.SetVector(ref this.DOP, this.WC.x - this.COP.x, this.WC.y - this.COP.y, this.WC.z - this.COP.z);
 
-            this.shx = -this.DOP.x / this.DOP.z; // harusnya -DOPx based dari ppt 
-            this.shy = -this.DOP.y / this.DOP.z; // -//- -DOPy based dari ppy
-            this.BP4 = this.BP - this.COP.z; // ini sama kayak B4/B3 (Back plane yang udah melakukan 4 transformasi
+            this.v3 = -this.COP.z; // VP3
+            this.shx = -this.DOP.x / this.DOP.z; //-DOPx based dari ppt 
+            this.shy = -this.DOP.y / this.DOP.z; // -//- -DOPy based dari ppt
+            this.BP4 = this.BP - this.COP.z; // B4/B3 (Back plane yang udah melakukan 4 transformasi
             this.sx = 2.0 * -this.COP.z / ((this.wxmax - this.wxmin) * this.BP4);
             this.sy = 2.0 * -this.COP.z / ((this.wymax - this.wymin) * this.BP4);
             this.sz = -1.0 / (this.BP - this.COP.z);
             this.zmin = -((-this.COP.z + this.FP) / this.BP4);
 
-            
+            this.v5 = this.v3 * this.sz;
+            this.vmax7 = this.COP.z / (this.COP.z - this.BP);
+            this.num8 =  this.COP.z / (this.COP.z - this.BP);
 
             this.zmax = -1.0;
-            this.SetRowMatrix(ref this.T1n2, 0, this.u.x, this.v.x, this.n.x, 0.0);
-            this.SetRowMatrix(ref this.T1n2, 1, this.u.y, this.v.y, this.n.y, 0.0);
-            this.SetRowMatrix(ref this.T1n2, 2, this.u.z, this.v.z, this.n.z, 0.0);
-            this.SetRowMatrix(ref this.T1n2, 3, -this.VRPV.x, -this.VRPV.y, -this.VRPV.z, 1.0); // ini di PPT 5 slide 12, 
+            this.SetRowMatrix(ref this.T1T2, 0, this.u.x, this.v.x, this.n.x, 0.0);
+            this.SetRowMatrix(ref this.T1T2, 1, this.u.y, this.v.y, this.n.y, 0.0);
+            this.SetRowMatrix(ref this.T1T2, 2, this.u.z, this.v.z, this.n.z, 0.0);
+            this.SetRowMatrix(ref this.T1T2, 3, -this.VRPV.x, -this.VRPV.y, -this.VRPV.z, 1.0); // PPT 5 slide 12, 
             this.SetRowMatrix(ref this.T3, 0, 1.0, 0.0, 0.0, 0.0);
             this.SetRowMatrix(ref this.T3, 1, 0.0, 1.0, 0.0, 0.0);
             this.SetRowMatrix(ref this.T3, 2, 0.0, 0.0, 1.0, 0.0);
@@ -421,170 +445,39 @@ namespace WindowsFormsApp1
             this.SetRowMatrix(ref this.T6, 1, 0.0, 1.0, 0.0, 0.0);
             this.SetRowMatrix(ref this.T6, 2, 0.0, 0.0, 1.0 / (1.0 + this.zmin), this.zmax);
             this.SetRowMatrix(ref this.T6, 3, 0.0, 0.0, -this.zmin / (1.0 + this.zmin), 0.0);
+            this.SetRowMatrix(ref this.T7, 0, 1.0, 0.0, 0.0, 0.0);
+            this.SetRowMatrix(ref this.T7, 1, 0.0, 1.0, 0.0, 0.0);
+            this.SetRowMatrix(ref this.T7, 2, 0.0, 0.0, 1.0, vmax7);
+            this.SetRowMatrix(ref this.T7, 3, 0.0, 0.0, 0.0, 1.0);
+            this.SetRowMatrix(ref this.T8, 0, 1.0 / num8, 0.0, 0.0, 0.0);
+            this.SetRowMatrix(ref this.T8, 1, 0.0, 1.0 / num8, 0.0, 0.0);
+            this.SetRowMatrix(ref this.T8, 2, 0.0, 0.0, 1.0, 0.0);
+            this.SetRowMatrix(ref this.T8, 3, 0.0, 0.0, -1.0 / num8, 1.0);
+
+
             this.SetCubes();
-            this.TransformCubes(this.T1n2);
+            this.TransformCubes(this.T1T2);
             this.TransformCubes(this.T3);
             this.TransformCubes(this.T4);
             this.TransformCubes(this.T5);
             this.TransformCubes(this.T6);
+            this.TransformCubeS(this.T7);
+            this.TransformCubeS(this.T8);
+
             this.DrawCubes();
             this.DrawWindow();
             this.boxCanvas.Image = (Image)this.window;
         }
 
-        public int CSAnd(Form1.CSBits b1, Form1.CSBits b2)
-        {
-            int num = 0;
-            if (b1.Above & b2.Above)
-                checked { num += 32; }
-            if (b1.Below & b2.Below)
-                checked { num += 16; }
-            if (b1.Right & b2.Right)
-                checked { num += 8; }
-            if (b1.Left & b2.Left)
-                checked { num += 4; }
-            if (b1.Front & b2.Front)
-                checked { num += 2; }
-            if (b1.Back & b2.Back)
-                checked { ++num; }
-            return num;
-        }
-
-        public int CSOr(Form1.CSBits b1, Form1.CSBits b2)
-        {
-            int num = 0;
-            if (b1.Above | b2.Above)
-                checked { num += 32; }
-            if (b1.Below | b2.Below)
-                checked { num += 16; }
-            if (b1.Right | b2.Right)
-                checked { num += 8; }
-            if (b1.Left | b2.Left)
-                checked { num += 4; }
-            if (b1.Front | b2.Front)
-                checked { num += 2; }
-            if (b1.Back | b2.Back)
-                checked { ++num; }
-            return num;
-        }
-
-        public Form1.CSBits CSCode(Form1.TPoint p)
-        {
-            Form1.CSBits csBits;
-            csBits.Above = p.y > 1.0;
-            csBits.Below = p.y < -1.0;
-            csBits.Right = p.x > 1.0;
-            csBits.Left = p.x < -1.0;
-            csBits.Front = p.z > 0.0;
-            csBits.Back = p.z < -1.0;
-            return csBits;
-        }
-
-        public bool CSClip(ref Form1.TPoint p1, ref Form1.TPoint p2)
-        {
-            bool flag1;
-            bool flag2 = false;
-            do
-            {
-                flag1 = false;
-                Form1.CSBits csBits = this.CSCode(p1);
-                Form1.CSBits b2 = this.CSCode(p2);
-                if (this.CSOr(csBits, b2) == 0)
-                    flag2 = true;
-                else if (this.CSAnd(csBits, b2) > 0)
-                {
-                    flag2 = false;
-                }
-                else
-                {
-                    flag1 = true;
-                    Form1.CSBits b1;
-                    Form1.TPoint tpoint1;
-                    Form1.TPoint tpoint2;
-                    if (this.CSAnd(csBits, csBits) > 0)
-                    {
-                        b1 = csBits;
-                        tpoint1 = p2;
-                        tpoint2 = p1;
-                    }
-                    else
-                    {
-                        b1 = b2;
-                        tpoint1 = p1;
-                        tpoint2 = p2;
-                    }
-                    double x;
-                    double y;
-                    double z;
-                    if (b1.Above)
-                    {
-                        x = tpoint1.x + (tpoint2.x - tpoint1.x) * (1.0 - tpoint1.y) / (tpoint2.y - tpoint1.y);
-                        y = 1.0;
-                        z = tpoint1.z + (tpoint2.z - tpoint1.z) * (1.0 - tpoint1.y) / (tpoint2.y - tpoint1.y);
-                    }
-                    else if (b1.Below)
-                    {
-                        x = tpoint1.x + (tpoint2.x - tpoint1.x) * (-1.0 - tpoint1.y) / (tpoint2.y - tpoint1.y);
-                        y = -1.0;
-                        z = tpoint1.z + (tpoint2.z - tpoint1.z) * (-1.0 - tpoint1.y) / (tpoint2.y - tpoint1.y);
-                    }
-                    else if (b1.Right)
-                    {
-                        x = 1.0;
-                        y = tpoint1.y + (tpoint2.y - tpoint1.y) * (1.0 - tpoint1.x) / (tpoint2.x - tpoint1.x);
-                        z = tpoint1.z + (tpoint2.z - tpoint1.z) * (1.0 - tpoint1.x) / (tpoint2.x - tpoint1.x);
-                    }
-                    else if (b1.Left)
-                    {
-                        x = -1.0;
-                        y = tpoint1.y + (tpoint2.y - tpoint1.y) * (-1.0 - tpoint1.x) / (tpoint2.x - tpoint1.x);
-                        z = tpoint1.z + (tpoint2.z - tpoint1.z) * (-1.0 - tpoint1.x) / (tpoint2.x - tpoint1.x);
-                    }
-                    else if (b1.Front)
-                    {
-                        x = tpoint1.x + (tpoint2.x - tpoint1.x) * (0.0 - tpoint1.z) / (tpoint2.z - tpoint1.z);
-                        y = tpoint1.y + (tpoint2.y - tpoint1.y) * (0.0 - tpoint1.z) / (tpoint2.z - tpoint1.z);
-                        z = 0.0;
-                    }
-                    else
-                    {
-                        x = tpoint1.x + (tpoint2.x - tpoint1.x) * (-1.0 - tpoint1.z) / (tpoint2.z - tpoint1.z);
-                        y = tpoint1.y + (tpoint2.y - tpoint1.y) * (-1.0 - tpoint1.z) / (tpoint2.z - tpoint1.z);
-                        z = -1.0;
-                    }
-                    if (this.CSAnd(b1, csBits) == this.CSOr(b1, csBits))
-                    {
-                        this.SetPoint(ref p1, x, y, z);
-                        this.CSCode(p1);
-                    }
-                    else
-                    {
-                        this.SetPoint(ref p2, x, y, z);
-                        this.CSCode(p2);
-                    }
-                }
-            }
-            while (flag1);
-            return flag2;
-        }
-
-        public void ClipLine(Form1.TPoint v1, ref Form1.TPoint v2)
-        {
-            double num = (v1.w - this.near) / (v1.w - v2.w);
-            double x = num * v1.x + (1.0 - num) * v2.x;
-            double y = num * v1.y + (1.0 - num) * v2.y;
-            double z = num * v1.z + (1.0 - num) * v2.z;
-            this.SetPoint(ref v2, x, y, z);
-        }
-
-        public void MoveCamera(double r, double a)
+        
+        public void DoCameraMove(double r, double a)
         {
             this.VRP.x += r * Math.Cos(this.alpha + a); // Move camera along x (right left)
             this.VRP.z -= r * Math.Sin(this.alpha + a); // Move camera along z (forw backw)
-            this.Process();
+            this.DoRedraw();
         }
 
-        public void Rotate(double a)
+        public void DoRotateCamera(double a)
         {
             Form1.TVector V = new TVector();
             this.SetVector(ref V, this.COP.x, this.COP.y, this.COP.z);
@@ -600,7 +493,7 @@ namespace WindowsFormsApp1
             this.VRP.z = num3 - num1 * Math.Sin(this.alpha);
             this.VPN.x = -Math.Cos(this.alpha);
             this.VPN.z = Math.Sin(this.alpha);
-            this.Process();
+            this.DoRedraw();
         }
 
         public bool IsValid(string s) => IsNumeric(s) && Convert.ToDouble(s) >= 0.0;
@@ -669,35 +562,22 @@ namespace WindowsFormsApp1
 
         private void RotateMin_MouseUp(object sender, MouseEventArgs e)
         {
-            this.Timer1.Enabled = false;
-            this.Rmin = false;
-            Timer1.Stop();
+            
         }
 
         private void rotateMin_MouseDown(object sender, MouseEventArgs e)
         {
-            this.Rmin = true;
-            this.Timer1.Enabled = true;
-            Timer1.Start();
         }
 
         private void rotateYplus_MouseDown(object sender, MouseEventArgs e)
         {
-            this.Rplus = true;
-            this.Timer1.Enabled = true;
-            Timer1.Start();
+            
         }
 
         private void rotateYplus_MouseUp(object sender, MouseEventArgs e)
         {
-            this.Rplus = false;
-            this.Timer1.Enabled = false;
-            Timer1.Stop();
+            
         }
-
-
-
-
 
         public bool IsNumeric(string input)
         {
@@ -709,18 +589,18 @@ namespace WindowsFormsApp1
         {
             
             if (this.Forw)
-                this.MoveCamera(0.1, 0.0);
+                this.DoCameraMove(0.1, 0.0);
             if (this.Back)
-                this.MoveCamera(-0.1, 0.0);
+                this.DoCameraMove(-0.1, 0.0);
             if (this.Righ)
-                this.MoveCamera(0.1, -1.0 * Math.PI / 2.0);
+                this.DoCameraMove(0.1, -1.0 * Math.PI / 2.0);
             if (this.Lef)
-                this.MoveCamera(0.1, Math.PI / 2.0);
-            if (this.Rplus)
-                this.Rotate(Math.PI / 180.0);
+                this.DoCameraMove(0.1, Math.PI / 2.0);
+            if (this.rotatePlus)
+                this.DoRotateCamera(Math.PI / 180.0);
             if (!this.Rmin)
                 return;
-            this.Rotate(-1.0 * Math.PI / 180.0);
+            this.DoRotateCamera(-1.0 * Math.PI / 180.0);
         }
 
         public struct TVector
@@ -762,12 +642,193 @@ namespace WindowsFormsApp1
 
         private void ForwardBtn_Click(object sender, EventArgs e)
         {
-            this.MoveCamera(0.3, 0.0);
+            this.DoCameraMove(0.3, 0.0);
         }
 
         private void BackwardBtn_Click(object sender, EventArgs e)
         {
-            this.MoveCamera(-0.3, 0.0);
+            this.DoCameraMove(-0.3, 0.0);
+        }
+
+        public int ClippingAndOperation(Form1.CSBits b1, Form1.CSBits b2)
+        {
+            int num = 0;
+            if (b1.Above & b2.Above)
+                checked { num += 32; }
+            if (b1.Below & b2.Below)
+                checked { num += 16; }
+            if (b1.Right & b2.Right)
+                checked { num += 8; }
+            if (b1.Left & b2.Left)
+                checked { num += 4; }
+            if (b1.Front & b2.Front)
+                checked { num += 2; }
+            if (b1.Back & b2.Back)
+                checked { ++num; }
+            return num;
+        }
+
+        public int ClippingOrOperation(Form1.CSBits b1, Form1.CSBits b2)
+        {
+            int num = 0;
+            if (b1.Above | b2.Above)
+                checked { num += 32; }
+            if (b1.Below | b2.Below)
+                checked { num += 16; }
+            if (b1.Right | b2.Right)
+                checked { num += 8; }
+            if (b1.Left | b2.Left)
+                checked { num += 4; }
+            if (b1.Front | b2.Front)
+                checked { num += 2; }
+            if (b1.Back | b2.Back)
+                checked { ++num; }
+            return num;
+        }
+
+        public Form1.CSBits ClippingSecretCode(Form1.TPoint p)
+        {
+            Form1.CSBits csBits;
+            csBits.Above = p.y > 1.0;
+            csBits.Below = p.y < -1.0;
+            csBits.Right = p.x > 1.0;
+            csBits.Left = p.x < -1.0;
+            csBits.Front = p.z > 0.0;
+            csBits.Back = p.z < -1.0;
+            return csBits;
+        }
+
+        public bool DoClip(ref Form1.TPoint p1, ref Form1.TPoint p2)
+        {
+            bool flag1;
+            bool flag2 = false;
+            do
+            {
+                flag1 = false;
+                Form1.CSBits csBits = this.ClippingSecretCode(p1);
+                Form1.CSBits b2 = this.ClippingSecretCode(p2);
+                if (this.ClippingOrOperation(csBits, b2) == 0)
+                    flag2 = true;
+                else if (this.ClippingAndOperation(csBits, b2) > 0)
+                {
+                    flag2 = false;
+                }
+                else
+                {
+                    flag1 = true;
+                    Form1.CSBits b1;
+                    Form1.TPoint tpoint1;
+                    Form1.TPoint tpoint2;
+                    if (this.ClippingAndOperation(csBits, csBits) > 0)
+                    {
+                        b1 = csBits;
+                        tpoint1 = p2;
+                        tpoint2 = p1;
+                    }
+                    else
+                    {
+                        b1 = b2;
+                        tpoint1 = p1;
+                        tpoint2 = p2;
+                    }
+                    double x;
+                    double y;
+                    double z;
+                    if (b1.Above)
+                    {
+                        x = tpoint1.x + (tpoint2.x - tpoint1.x) * (1.0 - tpoint1.y) / (tpoint2.y - tpoint1.y);
+                        y = 1.0;
+                        z = tpoint1.z + (tpoint2.z - tpoint1.z) * (1.0 - tpoint1.y) / (tpoint2.y - tpoint1.y);
+                    }
+                    else if (b1.Below)
+                    {
+                        x = tpoint1.x + (tpoint2.x - tpoint1.x) * (-1.0 - tpoint1.y) / (tpoint2.y - tpoint1.y);
+                        y = -1.0;
+                        z = tpoint1.z + (tpoint2.z - tpoint1.z) * (-1.0 - tpoint1.y) / (tpoint2.y - tpoint1.y);
+                    }
+                    else if (b1.Right)
+                    {
+                        x = 1.0;
+                        y = tpoint1.y + (tpoint2.y - tpoint1.y) * (1.0 - tpoint1.x) / (tpoint2.x - tpoint1.x);
+                        z = tpoint1.z + (tpoint2.z - tpoint1.z) * (1.0 - tpoint1.x) / (tpoint2.x - tpoint1.x);
+                    }
+                    else if (b1.Left)
+                    {
+                        x = -1.0;
+                        y = tpoint1.y + (tpoint2.y - tpoint1.y) * (-1.0 - tpoint1.x) / (tpoint2.x - tpoint1.x);
+                        z = tpoint1.z + (tpoint2.z - tpoint1.z) * (-1.0 - tpoint1.x) / (tpoint2.x - tpoint1.x);
+                    }
+                    else if (b1.Front)
+                    {
+                        x = tpoint1.x + (tpoint2.x - tpoint1.x) * (0.0 - tpoint1.z) / (tpoint2.z - tpoint1.z);
+                        y = tpoint1.y + (tpoint2.y - tpoint1.y) * (0.0 - tpoint1.z) / (tpoint2.z - tpoint1.z);
+                        z = 0.0;
+                    }
+                    else
+                    {
+                        x = tpoint1.x + (tpoint2.x - tpoint1.x) * (-1.0 - tpoint1.z) / (tpoint2.z - tpoint1.z);
+                        y = tpoint1.y + (tpoint2.y - tpoint1.y) * (-1.0 - tpoint1.z) / (tpoint2.z - tpoint1.z);
+                        z = -1.0;
+                    }
+                    if (this.ClippingAndOperation(b1, csBits) == this.ClippingOrOperation(b1, csBits))
+                    {
+                        this.SetPoint(ref p1, x, y, z);
+                        this.ClippingSecretCode(p1);
+                    }
+                    else
+                    {
+                        this.SetPoint(ref p2, x, y, z);
+                        this.ClippingSecretCode(p2);
+                    }
+                }
+            }
+            while (flag1);
+            return flag2;
+        }
+
+        public void ClipLine(Form1.TPoint v1, ref Form1.TPoint v2)
+        {
+            double num = (v1.w - this.near) / (v1.w - v2.w);
+            double x = num * v1.x + (1.0 - num) * v2.x;
+            double y = num * v1.y + (1.0 - num) * v2.y;
+            double z = num * v1.z + (1.0 - num) * v2.z;
+            this.SetPoint(ref v2, x, y, z);
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        public void TransformCubeS(double[,] M)
+        {
+            
         }
 
         
