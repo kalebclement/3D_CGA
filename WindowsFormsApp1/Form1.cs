@@ -337,15 +337,15 @@ namespace WindowsFormsApp1
 
         public void DrawCubes()
         {
-            this.DrawCube(this.c[8], Pens.Red);
+            this.DrawCube(this.c[8], Pens.Violet);
             this.DrawCube(this.c[7], Pens.Orange);
-            this.DrawCube(this.c[6], Pens.Yellow);
-            this.DrawCube(this.c[5], Pens.Green);
+            this.DrawCube(this.c[6], Pens.Aquamarine);
+            this.DrawCube(this.c[5], Pens.Brown);
             this.DrawCube(this.c[4], Pens.Blue);
-            this.DrawCube(this.c[3], Pens.Violet);
+            this.DrawCube(this.c[3], Pens.Red);
             this.DrawCube(this.c[2], Pens.Purple);
-            this.DrawCube(this.c[1], Pens.Brown);
-            this.DrawCube(this.c[0], Pens.Aquamarine);
+            this.DrawCube(this.c[1], Pens.Green);
+            this.DrawCube(this.c[0], Pens.Yellow);
         }
 
         public void SetRowMatrix(ref double[,] M, int row, double a, double b, double c, double d)
@@ -398,13 +398,7 @@ namespace WindowsFormsApp1
             this.sz = -1.0 / (this.BP - this.COP.z);
             this.zmin = -((-this.COP.z + this.FP) / this.BP4);
 
-            this.shx = -(this.DOP.x / this.DOP.z);
-            this.shy = -(this.DOP.y / this.DOP.z);
-            this.BP4 = -this.COP.z + this.BP; 
-            this.sx = 2.0 * -this.COP.z / ((this.wxmax - this.wxmin) * this.BP4);
-            this.sy = 2.0 * -this.COP.z / ((this.wymax - this.wymin) * this.BP4);
-            this.sz = -1.0 / (-this.COP.z + this.BP);
-            this.zmin = -((-this.COP.z + this.FP)  / this.BP4);
+            
 
             this.zmax = -1.0;
             this.SetRowMatrix(ref this.T1n2, 0, this.u.x, this.v.x, this.n.x, 0.0);
