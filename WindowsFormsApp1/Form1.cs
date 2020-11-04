@@ -13,19 +13,7 @@ namespace WindowsFormsApp1
     public partial class Form1 : Form
     {
        
-        private Bitmap window;
-        private Graphics graph;
-        private TCube[] c;
-        private TPoint COP;
-        private TPoint VRP;
-        private TPoint VRPV;
-        private TPoint WC;
-        private TVector VPN;
-        private TVector VUP;
-        private TVector u;
-        private TVector v;
-        private TVector n;
-        private TVector DOP;
+        
         private double[,] T1T2;
         private double[,] T3;
         private double[,] T4;
@@ -54,11 +42,24 @@ namespace WindowsFormsApp1
         private double zmax;
         private double near;
         private double alpha;
+        private Bitmap window;
+        private Graphics graph;
+        private TCube[] c;
+        private TPoint COP;
+        private TPoint VRP;
+        private TPoint VRPV;
+        private TPoint WC;
+        private TVector VPN;
+        private TVector VUP;
+        private TVector u;
+        private TVector v;
+        private TVector n;
+        private TVector DOP;
         private bool Forw;
         private bool Back;
         private bool Righ;
         private bool Lef;
-        private bool rotatePlus;
+        private bool Rplus;
         private bool Rmin;
         
 
@@ -92,7 +93,7 @@ namespace WindowsFormsApp1
         {
             boxCanvas.SizeMode = PictureBoxSizeMode.Normal;
             this.SetPoint(ref this.COP, 0.0, 0.0, 4.0);
-            this.SetPoint(ref this.VRP, 0.0, 0.0, 4.0);
+            this.SetPoint(ref this.VRP, 0.0, 0.0, 5.0);
             this.SetPoint(ref this.VRPV, 0.0, 0.0, 0.0);
             this.SetVector(ref this.VPN, 0.0, 0.0, 1.0);
             this.SetVector(ref this.VUP, 0.0, 1.0, 0.0);
@@ -102,7 +103,7 @@ namespace WindowsFormsApp1
             this.Back = false;
             this.Righ = false;
             this.Lef = false;
-            this.rotatePlus = false;
+            this.Rplus = false;
             this.Rmin = false;
 
 
@@ -290,12 +291,12 @@ namespace WindowsFormsApp1
             while (index3 <= 8);
         }
 
-        public void TransformCube(ref Form1.TCube cu, double[,] M)
+        public void TransformCube(ref Form1.TCube cube, double[,] M)
         {
             int index = 0;
             do
             {
-                cu.P[index] = this.Generate3Dto2D(cu.P[index], M);
+                cube.P[index] = this.Generate3Dto2D(cube.P[index], M);
                 checked { ++index; }
             }
             while (index <= 7);
@@ -312,33 +313,35 @@ namespace WindowsFormsApp1
             while (index <= 8);
         }
 
-        public void DrawCube(Form1.TCube coords, Pen Col)
+        public void DrawCube(Form1.TCube cube, Pen Col)
         {
             int index = 0;
             do
             {
                 Form1.TPoint V1_One = new TPoint();
-                this.SetPoint(ref V1_One, coords.P[coords.L[index].p1].x, coords.P[coords.L[index].p1].y, coords.P[coords.L[index].p1].z);
-                V1_One.w = coords.P[coords.L[index].p1].w;
-                Form1.TPoint v1_2 = new TPoint();
-                this.SetPoint(ref v1_2, coords.P[coords.L[index].p2].x, coords.P[coords.L[index].p2].y, coords.P[coords.L[index].p2].z);
-                v1_2.w = coords.P[coords.L[index].p2].w;
-                if (V1_One.w > this.near | v1_2.w > this.near)
+                this.SetPoint(ref V1_One, cube.P[cube.L[index].p1].x, cube.P[cube.L[index].p1].y, cube.P[cube.L[index].p1].z);
+                V1_One.w = cube.P[cube.L[index].p1].w;
+                Form1.TPoint V1_Two = new TPoint();
+                this.SetPoint(ref V1_Two, cube.P[cube.L[index].p2].x, cube.P[cube.L[index].p2].y, cube.P[cube.L[index].p2].z);
+                V1_Two.w = cube.P[cube.L[index].p2].w;
+                if (V1_One.w > this.near | V1_Two.w > this.near)
                 {
-                    if (v1_2.w <= this.near)
+                    if (V1_Two.w <= this.near)
                     {
-                        this.ClipLine(V1_One, ref v1_2);
+                        this.ClipLine(V1_One, ref V1_Two);// clipline saat rotasi x
                     }
                     else
                     {
-                        v1_2.x /= v1_2.w;
-                        v1_2.y /= v1_2.w;
-                        v1_2.z /= v1_2.w;
-                        v1_2.w = 1.0;
+                        V1_Two.x /= V1_Two.w;
+                        V1_Two.y /= V1_Two.w;
+                        V1_Two.z /= V1_Two.w;
+                        V1_Two.w = 1.0;
+                        
                     }
-                    if (V1_One.w <= this.near)
+                    if (V1_One.w <= this.near)// clipline abis melewati dalam cube
                     {
-                        this.ClipLine(v1_2, ref V1_One);
+                        
+                        this.ClipLine(V1_Two, ref V1_One);
                     }
                     else
                     {
@@ -347,8 +350,8 @@ namespace WindowsFormsApp1
                         V1_One.z /= V1_One.w;
                         V1_One.w = 1.0;
                     }
-                    if (this.DoClip(ref V1_One, ref v1_2))
-                        this.graph.DrawLine(Col, checked((int)Math.Round(unchecked(V1_One.x * 100.0 + 150.0))), checked((int)Math.Round(unchecked(V1_One.y * -100.0 + 150.0))), checked((int)Math.Round(unchecked(v1_2.x * 100.0 + 150.0))), checked((int)Math.Round(unchecked(v1_2.y * -100.0 + 150.0))));
+                    if (this.DoClip(ref V1_One, ref V1_Two))
+                        this.graph.DrawLine(Col, checked((int)Math.Round(unchecked(V1_One.x * 100.0 + 150.0))), checked((int)Math.Round(unchecked(V1_One.y * -100.0 + 150.0))), checked((int)Math.Round(unchecked(V1_Two.x * 100.0 + 150.0))), checked((int)Math.Round(unchecked(V1_Two.y * -100.0 + 150.0))));
                 }
                 checked { ++index; }
             }
@@ -418,7 +421,7 @@ namespace WindowsFormsApp1
             this.sx = 2.0 * -this.COP.z / ((this.wxmax - this.wxmin) * this.BP4);
             this.sy = 2.0 * -this.COP.z / ((this.wymax - this.wymin) * this.BP4);
             this.sz = -1.0 / (this.BP - this.COP.z);
-            this.zmin = -((-this.COP.z + this.FP) / this.BP4);
+            this.zmin = -((-this.COP.z + this.FP) / this.BP4); // v5
 
             this.v5 = this.v3 * this.sz;
             this.vmax7 = this.COP.z / (this.COP.z - this.BP);
@@ -476,7 +479,6 @@ namespace WindowsFormsApp1
             this.VRP.z -= r * Math.Sin(this.alpha + a); // Move camera along z (forw backw)
             this.DoRedraw();
         }
-
         public void DoRotateCamera(double a)
         {
             Form1.TVector V = new TVector();
@@ -485,16 +487,21 @@ namespace WindowsFormsApp1
             double num2 = this.VRP.x - num1 * Math.Cos(this.alpha);
             double num3 = this.VRP.z + num1 * Math.Sin(this.alpha);
             this.alpha += a;
+
             while (this.alpha > 2.0 * Math.PI)
                 this.alpha -= 2.0 * Math.PI;
+
             while (this.alpha < 0.0)
                 this.alpha += 2.0 * Math.PI;
+
             this.VRP.x = num2 + num1 * Math.Cos(this.alpha);
             this.VRP.z = num3 - num1 * Math.Sin(this.alpha);
             this.VPN.x = -Math.Cos(this.alpha);
             this.VPN.z = Math.Sin(this.alpha);
             this.DoRedraw();
         }
+
+
 
         public bool IsValid(string s) => IsNumeric(s) && Convert.ToDouble(s) >= 0.0;
 
@@ -562,21 +569,30 @@ namespace WindowsFormsApp1
 
         private void RotateMin_MouseUp(object sender, MouseEventArgs e)
         {
-            
+            this.Timer1.Enabled = false;
+            this.Rmin = false;
+            Timer1.Stop();
         }
 
         private void rotateMin_MouseDown(object sender, MouseEventArgs e)
         {
+            this.Rmin = true;
+            this.Timer1.Enabled = true;
+            Timer1.Start();
         }
 
         private void rotateYplus_MouseDown(object sender, MouseEventArgs e)
         {
-            
+            this.Rplus = true;
+            this.Timer1.Enabled = true;
+            Timer1.Start();
         }
 
         private void rotateYplus_MouseUp(object sender, MouseEventArgs e)
         {
-            
+            this.Rplus = false;
+            this.Timer1.Enabled = false;
+            Timer1.Stop();
         }
 
         public bool IsNumeric(string input)
@@ -596,7 +612,7 @@ namespace WindowsFormsApp1
                 this.DoCameraMove(0.1, -1.0 * Math.PI / 2.0);
             if (this.Lef)
                 this.DoCameraMove(0.1, Math.PI / 2.0);
-            if (this.rotatePlus)
+            if (this.Rplus)
                 this.DoRotateCamera(Math.PI / 180.0);
             if (!this.Rmin)
                 return;
@@ -830,7 +846,7 @@ namespace WindowsFormsApp1
         {
             
         }
-
         
+
     }
 }
